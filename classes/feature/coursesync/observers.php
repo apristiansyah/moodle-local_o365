@@ -22,6 +22,7 @@
  * @author Lai Wei <lai.wei@enovation.ie>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2014 onwards Microsoft, Inc. (http://microsoft.com/)
+ * @modified 2025-02-11 Pass archive_prefix from course_reset_started event to process_course_reset.
  */
 
 namespace local_o365\feature\coursesync;
@@ -59,6 +60,7 @@ class observers {
 
         $eventdata = $event->get_data();
         $courseid = $eventdata['courseid'];
+        $archiveprefix = isset($eventdata['other']['archive_prefix']) ? (string)$eventdata['other']['archive_prefix'] : '';
 
         if (!$course = $DB->get_record('course', ['id' => $courseid])) {
             return false;
@@ -135,10 +137,10 @@ class observers {
 
                         switch ($courseresetsetting) {
                             case COURSE_SYNC_RESET_COURSE_SETTING_DISCONNECT_AND_CREATE_NEW:
-                                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam);
+                                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, true, $archiveprefix);
                                 break;
                             case COURSE_SYNC_RESET_COURSE_SETTING_DISCONNECT_ONLY:
-                                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, false);
+                                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, false, $archiveprefix);
                                 utils::set_course_sync_enabled($courseid, false);
                                 break;
                         }
@@ -146,11 +148,11 @@ class observers {
                 }
                 break;
             case COURSE_SYNC_RESET_SITE_SETTING_DISCONNECT_AND_CREATE_NEW:
-                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam);
+                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, true, $archiveprefix);
 
                 break;
             case COURSE_SYNC_RESET_SITE_SETTING_DISCONNECT_ONLY:
-                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, false);
+                $coursesyncmain->process_course_reset($course, $o365object, $connectedtoteam, false, $archiveprefix);
                 utils::set_course_sync_enabled($courseid, false);
 
                 break;

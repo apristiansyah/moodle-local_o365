@@ -22,6 +22,7 @@
  * @author Lai Wei <lai.wei@enovation.ie>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2014 onwards Microsoft, Inc. (http://microsoft.com/)
+ * @modified 2025-02-11 Add archive_prefix parameter to process_course_reset for custom archive naming.
  */
 
 namespace local_o365\feature\coursesync;
@@ -1370,13 +1371,15 @@ class main {
      * @param stdClass $o365object
      * @param bool $teamexists
      * @param bool $createafterreset
+     * @param string $archiveprefix
      * @return bool
      */
     public function process_course_reset(
         stdClass $course,
         stdClass $o365object,
         bool $teamexists = false,
-        bool $createafterreset = true
+        bool $createafterreset = true,
+        string $archiveprefix = ''
     ): bool {
         global $DB;
 
@@ -1410,7 +1413,7 @@ class main {
         // Rename existing Team.
         if ($teamexists) {
             try {
-                $resetteamnameprefix = get_config('local_o365', 'reset_team_name_prefix');
+                $resetteamnameprefix = ($archiveprefix !== null && $archiveprefix !== '') ? $archiveprefix : get_config('local_o365', 'reset_team_name_prefix');
                 if ($resetteamnameprefix === false) {
                     $resetteamnameprefix = '(archived) ';
                 }
